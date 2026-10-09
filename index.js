@@ -1,0 +1,1 @@
+console.log(BigInt(Math.pow(2,1023)));
