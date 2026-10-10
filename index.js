@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import fs from 'fs'
+import { ClientReqRouter } from './routes/application.route.js';
 
 
 
@@ -14,6 +15,7 @@ for(let i = 0 ; i < NODES.length ; i++){
         app.use(express.urlencoded({extended: false}));
         app.use(express.json());
         app.use(cors({origin : "*"}));
+        app.use('/',ClientReqRouter)
         app.listen(node['url']['port'], node['url']['host'],()=>{
             console.log(`Server - ${node['name']} on the run mfs!!!`)
         })

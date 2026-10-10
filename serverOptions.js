@@ -1,5 +1,5 @@
 import fs from "fs"
-import { HashFunc } from "./hashFn.js";
+import { HashFunc, POOL_SIZE } from "./hashFn.js";
 import { ServerNode } from "./serverNodeClass.js";
 import { moveFilesWhenServerAdded, moveFilesWhenServerRemoved } from "./fileOptions.js";
 
@@ -13,7 +13,7 @@ async function createServer(serverName, folderName, host, port){
     let alreadyPresent = false;
 
     for(const node of NODES){
-        if(BigInt(node['hashkey']) === hashedKey){
+        if((node['hashkey']) === hashedKey){
             alreadyPresent = true;
             break;
         }
@@ -31,7 +31,7 @@ async function createServer(serverName, folderName, host, port){
 
     for(let i = 0 ; i < newNodeList.length ; i++){
         const node = newNodeList[i];
-        if(BigInt(node['hashkey']) === hashedKey){
+        if((node['hashkey']) === hashedKey){
             if(i !== 0 ){
                 newNodeListPrevIndex = i - 1; 
                 newNodeListCurrIndex = i;
@@ -40,8 +40,8 @@ async function createServer(serverName, folderName, host, port){
         }
     }
 
-    const LastServerKey = BigInt( newNodeList[newNodeListPrevIndex]['hashkey']);
-    const CurrServerKey = BigInt( newNodeList[newNodeListCurrIndex]['hashkey']);
+    const LastServerKey = ( newNodeList[newNodeListPrevIndex]['hashkey']);
+    const CurrServerKey = ( newNodeList[newNodeListCurrIndex]['hashkey']);
 
     moveFilesWhenServerAdded(LastServerKey,CurrServerKey, newNodeList);
 }
@@ -67,15 +67,32 @@ async function removeServer(serverName,port){
         throw new Error('Cannot remove the only or no server');
     }
 
+    
+    let nextServerIndex = -1 ;
+    for(let i = removedNodeIndex ; i < NODES.length ; i++){
+        nextServerIndex = i;
+        break;
+    }
+    
+    if(nextServerIndex === -1){
+        nextServerIndex = 0;
+    }
+    
+    console.log(nextServerIndex);
+    const newServerKey = (NODES[nextServerIndex]['hashkey']);
+    
     let newNodeList = NODES.splice(removedNodeIndex, 1);
-
     await fs.promises.writeFile('./NODE.json',JSON.stringify(NODES, null, 2));
 
-    const newServerKey = BigInt(newNodeList[removedNodeIndex]['hashkey']);
+    if(nextServerIndex > removedNodeIndex){
+        nextServerIndex = nextServerIndex -1;
+    }
 
-    moveFilesWhenServerRemoved(newServerKey, removedServerPath, newNodeList);
+    moveFilesWhenServerRemoved(nextServerIndex, removedServerPath, NODES);
 }
 
-// createServer('Puronik', 'Beta', '10.08.98.97', 8002);
+// createServer('Puronik', 'Beta', '192.168.0.104', 8002);
+// createServer('Astick', 'Alpha', '192.168.0.104', 8001);
 
+// removeServer('Puronik',8002);
 removeServer('Astick',8001);

@@ -7,7 +7,7 @@ export class ServerNode{
         const NODES = JSON.parse(await fs.promises.readFile('./NODE.json','utf-8'));
 
         const alreadyPresent = NODES.findIndex((node)=>{
-            if(BigInt(node['hashkey']) === hashedKey || node['url']['port'] === port || node['name'] === serverName){
+            if((node['hashkey']) === hashedKey || node['url']['port'] === port || node['name'] === serverName){
                 return true;
             }
             return false;
