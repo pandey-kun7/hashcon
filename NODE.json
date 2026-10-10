@@ -1,1 +1,12 @@
-{}
+[
+  {
+    "hashkey": "86232192924613335793742840625649072227892256702712004206432074505422604262899",
+    "name": "Puronik",
+    "dirname": "Beta",
+    "url": {
+      "host": "10.08.98.97",
+      "port": 8002
+    },
+    "path": "C:\\Users\\Administrator\\projects\\consistent-hashing\\server_dir\\Beta"
+  }
+]

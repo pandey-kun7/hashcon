@@ -1,12 +1,14 @@
 import fs from "fs"
-import { HashFunc } from "./hashFn";
-import { ServerNode } from "./serverNodeClass";
-import { moveFilesWhenServerAdded, moveFilesWhenServerRemoved } from "./fileOptions";
+import { HashFunc } from "./hashFn.js";
+import { ServerNode } from "./serverNodeClass.js";
+import { moveFilesWhenServerAdded, moveFilesWhenServerRemoved } from "./fileOptions.js";
 
 async function createServer(serverName, folderName, host, port){
     const NODES = JSON.parse(await fs.promises.readFile('./NODE.json','utf-8'));
 
     const hashedKey = HashFunc(serverName+ host + port);
+
+    console.log(hashedKey)
 
     let alreadyPresent = false;
 
@@ -22,22 +24,24 @@ async function createServer(serverName, folderName, host, port){
         return;
     }
 
-    let newNodeList = ServerNode(serverName, folderName, host, port);
+    let newNodeList = await ServerNode.ServerNode_(serverName, folderName, host, port, hashedKey);
 
     let newNodeListPrevIndex = 0;
     let newNodeListCurrIndex = 0;
-    for(const index in newNodeList){
-        if(BigInt(newNodeList[index]['hashkey']) === hashedKey){
-            if(index !== 0 ){
-                newNodeListPrevIndex = index - 1; 
-                newNodeListCurrIndex = index;
+
+    for(let i = 0 ; i < newNodeList.length ; i++){
+        const node = newNodeList[i];
+        if(BigInt(node['hashkey']) === hashedKey){
+            if(i !== 0 ){
+                newNodeListPrevIndex = i - 1; 
+                newNodeListCurrIndex = i;
                 break
             }
         }
     }
 
-    const LastServerKey = BigInt(newNodeList[newNodeListPrevIndex]['hashkey']);
-    const CurrServerKey = BigInt(newNodeList[newNodeListCurrIndex]['hashkey']);
+    const LastServerKey = BigInt( newNodeList[newNodeListPrevIndex]['hashkey']);
+    const CurrServerKey = BigInt( newNodeList[newNodeListCurrIndex]['hashkey']);
 
     moveFilesWhenServerAdded(LastServerKey,CurrServerKey, newNodeList);
 }
@@ -45,15 +49,19 @@ async function createServer(serverName, folderName, host, port){
 async function removeServer(serverName,port){
     const NODES = JSON.parse(await fs.promises.readFile('./NODE.json','utf-8'));
 
-    const [removedServerPath, removedNodeIndex] = NODES.findIndex((node,index)=>{
-        if(node['port'] === port && node['name'] === serverName){
-            return [BigInt(node['hashedkey']) , index];
+    const removedNodeIndex  = NODES.findIndex((node)=>{
+        if(node['url']['port'] === port && node['name'] === serverName){
+            return true;
         }
+        return false;
     })
 
-    if(removedServerPath === -1){
+    
+    if(removedNodeIndex === -1){
         throw new Error('No such server exists');
     }
+
+    const removedServerPath = NODES[removedNodeIndex]['path']
 
     if(NODES.length <= 1){
         throw new Error('Cannot remove the only or no server');
@@ -61,9 +69,13 @@ async function removeServer(serverName,port){
 
     let newNodeList = NODES.splice(removedNodeIndex, 1);
 
-    await fs.promises.writeFile('./NODE.json',JSON.stringify(newNodeList, null, 2));
+    await fs.promises.writeFile('./NODE.json',JSON.stringify(NODES, null, 2));
 
     const newServerKey = BigInt(newNodeList[removedNodeIndex]['hashkey']);
 
     moveFilesWhenServerRemoved(newServerKey, removedServerPath, newNodeList);
 }
+
+// createServer('Puronik', 'Beta', '10.08.98.97', 8002);
+
+removeServer('Astick',8001);
