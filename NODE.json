@@ -1,12 +1,12 @@
 [
   {
-    "hashkey": "78960586548074378779139891783822349002105362053628172209873965508115297618891",
-    "name": "Puronik",
-    "dirname": "Beta",
+    "hashkey": "83438769227786980113249141892252026715654242278999182851314635223894429965817",
+    "name": "Wellkamine",
+    "dirname": "Gamma",
     "url": {
       "host": "192.168.0.104",
-      "port": 8002
+      "port": 8003
     },
-    "path": "C:\\Users\\Administrator\\projects\\consistent-hashing\\server_dir\\Beta"
+    "path": "C:\\Users\\Administrator\\projects\\consistent-hashing\\server_dir\\Gamma"
   }
 ]

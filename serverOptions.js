@@ -2,29 +2,33 @@ import fs from "fs"
 import { HashFunc, POOL_SIZE } from "./hashFn.js";
 import { ServerNode } from "./serverNodeClass.js";
 import { moveFilesWhenServerAdded, moveFilesWhenServerRemoved } from "./fileOptions.js";
+import { redisClient } from "./redis/redis.js";
+import { DELETE_SERVER_NODE } from "./redis/scripts.js";
 
 async function createServer(serverName, folderName, host, port){
-    const NODES = JSON.parse(await fs.promises.readFile('./NODE.json','utf-8'));
+    // const NODES = JSON.parse(await fs.promises.readFile('./NODE.json','utf-8'));
 
     const hashedKey = HashFunc(serverName+ host + port);
 
-    console.log(hashedKey)
+    // console.log(hashedKey)
 
-    let alreadyPresent = false;
+    // let alreadyPresent = false;
 
-    for(const node of NODES){
-        if((node['hashkey']) === hashedKey){
-            alreadyPresent = true;
-            break;
-        }
-    }
+    // for(const node of NODES){
+    //     if((node['hashkey']) === hashedKey){
+    //         alreadyPresent = true;
+    //         break;
+    //     }
+    // }
 
-    if(alreadyPresent){
-        throw new Error('Server key already exists');
-        return;
-    }
+    // if(alreadyPresent){
+    //     throw new Error('Server key already exists');
+    //     return;
+    // }
 
-    let newNodeList = await ServerNode.ServerNode_(serverName, folderName, host, port, hashedKey);
+    await ServerNode.ServerNode_(serverName, folderName, host, port, hashedKey);
+
+    const newNodeList = redisClient.call("HGET", nodes);
 
     let newNodeListPrevIndex = 0;
     let newNodeListCurrIndex = 0;
@@ -46,8 +50,24 @@ async function createServer(serverName, folderName, host, port){
     moveFilesWhenServerAdded(LastServerKey,CurrServerKey, newNodeList);
 }
 
-async function removeServer(serverName,port){
+async function removeServer(serverName, port, host){
+
+    const hashedKey = HashFunc(serverName+ host + port);
+
+    const result = await redisClient.eval(DELETE_SERVER_NODE, {
+        keys: [hashedKey.toString()]
+    })
+
+    console.log(result)
+
     const NODES = JSON.parse(await fs.promises.readFile('./NODE.json','utf-8'));
+    if(result[0] == -1){
+        console.log("Cant delete the server");
+        return;
+    }else{
+        moveFilesWhenServerRemoved(result[1], result[2], NODES);
+    }
+
 
     const removedNodeIndex  = NODES.findIndex((node)=>{
         if(node['url']['port'] === port && node['name'] === serverName){
@@ -69,7 +89,7 @@ async function removeServer(serverName,port){
 
     
     let nextServerIndex = -1 ;
-    for(let i = removedNodeIndex ; i < NODES.length ; i++){
+    for(let i = removedNodeIndex+1 ; i < NODES.length ; i++){
         nextServerIndex = i;
         break;
     }
@@ -92,7 +112,9 @@ async function removeServer(serverName,port){
 }
 
 // createServer('Puronik', 'Beta', '192.168.0.104', 8002);
+// createServer('Wellkamine', 'Gamma', '192.168.0.104', 8003);
 // createServer('Astick', 'Alpha', '192.168.0.104', 8001);
 
-// removeServer('Puronik',8002);
-removeServer('Astick',8001);
+// removeServer('Puronik',8002, "192.168.0.104");
+// removeServer('Astick',8001, "192.168.0.104");
+removeServer('Wellkamine',8003, "192.168.0.104");

@@ -8,16 +8,21 @@ export async function moveFilesWhenServerAdded(lastServerKey, currentServerKey, 
         (node['hashkey']) === currentServerKey
     ));
 
+    console.log(destFolderIndex)
+
     if(destFolderIndex === -1){
         throw new Error('No such destination folder');
         // return; // unreachable
     }
 
     for(let  i = 0 ; i < KEYS.length ; i++){
-        if(BigInt(KEYS[i]['hashkey']) >= BigInt(lastServerKey + 1n) && BigInt(KEYS[i]['hashkey']) <= BigInt(currentServerKey) ){
-            const destination = path.join(NODES[destFolderIndex]['path'], KEYS[i]['filename'])
+        // console.log(BigInt(KEYS[i]['hashkey']) > BigInt(lastServerKey + 1n) )
+        // console.log(BigInt(KEYS[i]['hashkey']) , BigInt(lastServerKey + 1n) , BigInt(currentServerKey))
+        if((BigInt(KEYS[i]['hashkey']) >= BigInt(lastServerKey )+ 1n) && (BigInt(KEYS[i]['hashkey']) <= BigInt(currentServerKey)) ){
+            const destination = path.join(NODES[destFolderIndex]['path'], KEYS[i]['name'])
             await fs.promises.rename(KEYS[i]['path'] , destination);
             KEYS[i]['path'] = destination;
+            console.log(KEYS[i], "hi");
         }
     }
 
@@ -30,6 +35,8 @@ export async function moveFilesWhenServerRemoved(destFolderIndex, removedServerP
     // const destFolderIndex = NODES.findIndex((node)=>(
     //     (node['hashkey']) === nextServerKey
     // ));
+
+    console.log('destIndex', destFolderIndex)
 
     if(destFolderIndex === -1){
         throw new Error('No such destination folder');
