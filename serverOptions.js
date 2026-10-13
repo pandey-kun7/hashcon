@@ -5,7 +5,7 @@ import { moveFilesWhenServerAdded, moveFilesWhenServerRemoved } from "./fileOpti
 import { redisClient } from "./redis/redis.js";
 import { DELETE_SERVER_NODE } from "./redis/scripts.js";
 
-async function createServer(serverName, folderName, host, port){
+export async function createServer(serverName, folderName, host, port){
     const hashedKey = HashFunc(serverName+ host + port);
 
     const resultParams = await ServerNode.ServerNode_(serverName, folderName, host, port, hashedKey);
@@ -23,7 +23,7 @@ async function createServer(serverName, folderName, host, port){
 
 }
 
-async function removeServer(serverName, port, host){
+export async function removeServer(serverName, port, host){
 
     const hashedKey = HashFunc(serverName+ host + port);
 
