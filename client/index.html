@@ -11,29 +11,22 @@
     h1 { margin: 0 0 8px; font-size: 1.5rem; }
     p { color: #536170; line-height: 1.5; }
     label { display: block; margin: 18px 0 7px; font-weight: 650; }
-    select, input[type="file"] { width: 100%; box-sizing: border-box; padding: 11px; border: 1px solid #cbd3dd; border-radius: 9px; background: white; }
+    input[type="file"] { width: 100%; box-sizing: border-box; padding: 11px; border: 1px solid #cbd3dd; border-radius: 9px; background: white; }
     button { margin-top: 20px; width: 100%; padding: 12px 16px; border: 0; border-radius: 9px; background: #185adb; color: white; font-weight: 700; cursor: pointer; }
     button:disabled { opacity: .55; cursor: not-allowed; }
     #status { margin-top: 16px; padding: 12px; border-radius: 9px; background: #f3f5f8; white-space: pre-wrap; overflow-wrap: anywhere; }
-    #serverInfo { font-size: .9rem; }
   </style>
 </head>
 <body>
   <main>
     <h1>Upload a file</h1>
-    <p>Select a receiving server and send the chosen file as raw binary data.</p>
-
-    <label for="serverSelect">Receiving server</label>
-    <select id="serverSelect" disabled>
-      <option value="">Loading servers…</option>
-    </select>
-    <p id="serverInfo">Fetching server list…</p>
+    <p>Select a file to upload. The backend consistent hashing ring will automatically route it to the appropriate storage node.</p>
 
     <label for="fileInput">File</label>
     <input id="fileInput" type="file" />
 
-    <button id="uploadBtn" disabled>Upload file</button>
-    <div id="status" role="status" aria-live="polite">Loading server list…</div>
+    <button id="uploadBtn">Upload file</button>
+    <div id="status" role="status" aria-live="polite">Select a file to upload.</div>
   </main>
 
   <script src="./script.js" defer></script>
